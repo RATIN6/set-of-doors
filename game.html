@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Jogo das Portas - Lendário</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 30px;
+    }
+    .door {
+      display: inline-block;
+      width: 80px;
+      height: 150px;
+      margin: 10px;
+      background-color: #333;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .door.correct {
+      background-color: green;
+    }
+    .door.wrong {
+      background-color: darkred;
+    }
+    #trophy {
+      font-size: 30px;
+      color: gold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jogo das Portas 🧙‍♂️🧛</h1>
+  <p id="playerName"></p>
+  <p>Fase: <span id="fase">1</span></p>
+  <div id="doors"></div>
+  <p id="message"></p>
+  <div id="trophy"></div>
+  <p>Acertos: <span id="acertos">0</span></p>
+  <p>Erros: <span id="erros">0</span></p>
+
+  <script>
+    const whitelist = ['nicollas', 'rafael', 'santhiago']; // Substitua pelos nomes desejados
+    const url = 'https://api.sheetmonkey.io/form/ngzoTUMXfpcfxY4UmHs1XV'; // Cole aqui sua URL do Apps Script
+
+    let fase = 1;
+    let acertos = 0;
+    let erros = 0;
+    let nome = '';
+    let correta = 0;
+    let listaAcertos = [];
+    let listaErros = [];
+
+    function iniciar() {
+      nome = prompt("Digite seu nome:").trim().toLowerCase();
+      if (!whitelist.includes(nome)) {
+        alert("Você não está na whitelist.");
+        document.body.innerHTML = "<h2>Acesso negado</h2>";
+        return;
+      }
+
+      document.getElementById("playerName").textContent = "Jogador: " + nome;
+      novaFase();
+    }
+
+    function novaFase() {
+      document.getElementById("fase").textContent = fase;
+      const qtd = Math.min(3 + fase, 10);
+      correta = Math.floor(Math.random() * qtd);
+
+      const container = document.getElementById("doors");
+      container.innerHTML = "";
+
+      for (let i = 0; i < qtd; i++) {
+        const d = document.createElement("div");
+        d.className = "door";
+        d.onclick = () => verificar(i, d);
+        container.appendChild(d);
+      }
+    }
+
+    function verificar(i, elem) {
+      if (i === correta) {
+        elem.classList.add("correct");
+        document.getElementById("message").textContent = "Acertou!";
+        acertos++;
+        listaAcertos.push(fase);
+        if (fase % 5 === 0) {
+          document.getElementById("trophy").textContent = "🏆 TROFÉU!";
+        } else {
+          document.getElementById("trophy").textContent = "";
+        }
+        enviarDados();
+        fase++;
+        setTimeout(novaFase, 1000);
+      } else {
+        elem.classList.add("wrong");
+        document.getElementById("message").textContent = "Errou!";
+        erros++;
+        listaErros.push(fase);
+        enviarDados();
+      }
+
+      document.getElementById("acertos").textContent = acertos;
+      document.getElementById("erros").textContent = erros;
+    }
+
+    function enviarDados() {
+      const dados = {
+        nome: nome,
+        fase: fase,
+        acertos: acertos,
+        erros: erros,
+        lista_acertos: listaAcertos.join(','),
+        lista_erros: listaErros.join(',')
+      };
+
+      fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(dados),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.text())
+      .then(txt => console.log("Enviado:", txt))
+      .catch(err => console.error("Erro ao enviar:", err));
+    }
+
+    iniciar();
+  </script>
+</body>
+</html>

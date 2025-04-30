@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo das Portas - Início</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, #181818, #3d3d3d);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 36px;
+      margin-bottom: 30px;
+      text-shadow: 0 0 15px gold;
+    }
+    .section {
+      margin: 20px 0;
+    }
+    .characters, .levels {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .choice, .level {
+      cursor: pointer;
+      padding: 12px 20px;
+      border: 2px solid #fff;
+      border-radius: 10px;
+      transition: transform 0.3s;
+    }
+    .choice:hover, .level:hover {
+      transform: scale(1.1);
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .choice.selected, .level.selected {
+      border-color: gold;
+      background-color: rgba(255,255,255,0.1);
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 20px;
+      border: none;
+      background-color: gold;
+      color: black;
+      border-radius: 15px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .levels {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .level-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jogo das Portas - Escolha seu destino!</h1>
+
+  <div class="section">
+    <h2>Escolha seu personagem</h2>
+    <div class="characters">
+      <div class="choice" data-char="👦">👦 Menino</div>
+      <div class="choice" data-char="👧">👧 Menina</div>
+      <div class="choice" data-char="🧙">🧙 Mago</div>
+      <div class="choice" data-char="🧛">🧛 Vampiro</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Escolha o nível</h2>
+    <p>Selecione o nível que você deseja jogar. Comece sua jornada lendária!</p>
+    <div class="level-container" id="levelContainer"></div>
+  </div>
+
+  <button onclick="startGame()">Jogar</button>
+
+  <script>
+    let selectedChar = null;
+    let selectedLevel = 1; // Default to level 1
+
+    // Selecting a character
+    document.querySelectorAll('.characters .choice').forEach(el => {
+      el.onclick = () => {
+        document.querySelectorAll('.characters .choice').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedChar = el.dataset.char;
+      };
+    });
+
+    // Generate levels (1 to 50)
+    const levelContainer = document.getElementById('levelContainer');
+    for (let i = 1; i <= 50; i++) {
+      const levelDiv = document.createElement('div');
+      levelDiv.classList.add('level');
+      levelDiv.textContent = `Fase ${i}`;
+      levelDiv.onclick = () => selectLevel(i);
+      levelContainer.appendChild(levelDiv);
+    }
+
+    // Level selection
+    function selectLevel(level) {
+      document.querySelectorAll('.level').forEach(l => l.classList.remove('selected'));
+      document.querySelector(`.level:nth-child(${level})`).classList.add('selected');
+      selectedLevel = level;
+    }
+
+    // Start game function
+    function startGame() {
+      if (!selectedChar) {
+        alert("Escolha um personagem!");
+        return;
+      }
+      const url = `game.html?personagem=${encodeURIComponent(selectedChar)}&nivel=${selectedLevel}`;
+      window.location.href = url;
+    }
+  </script>
+</body>
+</html>
